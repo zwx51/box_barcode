@@ -1,0 +1,10 @@
+{
+	"index.html": {
+		"refer": [
+			"html/Barcode_A.html",
+			"html/Barcode_D.html",
+			"html/Barcode_B.html",
+			"html/Barcode_C.html"
+		]
+	}
+}
