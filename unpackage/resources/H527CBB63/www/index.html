@@ -8,7 +8,6 @@
     <link href="css/mui.min.css" rel="stylesheet"/>
     <script type="text/javascript" charset="utf-8">
       	mui.init();
-			
     </script>
     <style type="text/css">
     	p{
@@ -22,28 +21,41 @@
 	</header>
 	<div class="mui-content">
 		
-
-		<ul  class="mui-table-view">
-			<li class="mui-table-view-cell" ><button id="a" class="mui-btn-blue" style="width: 100%;" >扫描中箱码</button></li>
-			<li class="mui-table-view-cell" ><button id="b" class="mui-btn-blue" style="width: 100%;" >扫描中箱码</button></li>
-			<li class="mui-table-view-cell" ><button id="c" class="mui-btn-blue" style="width: 100%;" >扫描中箱码</button></li>
+	    <button class="mui-btn-blue" id="a">选择箱子码</button>
+		<p>ID1:</p>
+		<p id="ida"></p>
+		<button class="mui-btn-blue" id="b">内容</button>
+		<p>IDS:</p>
+		<ul  class="mui-table-view" id="ids">
+			<li>1</li>
 		</ul>
 	</div>
 	
 	<script type="text/javascript">
-			document.querySelector('#a').addEventListener('click',function(){
-
-			var w = plus.webview.create('_www/html/bBarcode.html', 'carcode1', {
+		
+		document.querySelector('#a').addEventListener('click',function(){
+			var w = plus.webview.create('_www/html/Barcode_A.html', 'carcode1', {
 				'titleNView': {
 					'backgroundColor': '#262930',
-					'titleText': '扫描中箱码',
+					'titleText': '获取id1',
 					'titleColor': '#FFFFFF',
 					autoBackButton: true
 				}
 			});
 			plus.webview.show(w, 'slide-in-right', '300ms');
 		},false);
-
+		
+		document.querySelector('#b').addEventListener('click',function(){
+			var w = plus.webview.create('_www/html/Barcode_B.html', 'carcode2', {
+				'titleNView': {
+					'backgroundColor': '#262930',
+					'titleText': '获取ids',
+					'titleColor': '#FFFFFF',
+					autoBackButton: true
+				}
+			});
+			plus.webview.show(w, 'slide-in-right', '300ms');
+		},false);
 	</script>
 </body>
 </html>

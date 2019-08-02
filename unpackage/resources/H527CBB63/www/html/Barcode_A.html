@@ -41,12 +41,7 @@
 							scan.close();
 							plus.storage.setItem('result', result);
 							var wn = plus.webview.getLaunchWebview(); //传递消息返回的webview
-							wn && wn.evalJS("var result = plus.storage.getItem('result');"+							
-							"var node=document.createElement(\"LI\");"+
-							"var textnode=document.createTextNode(result);"+
-							"node.appendChild(textnode);"+
-							"node.setAttribute(\"class\",\"mui-table-view-cell\");"+
-							"document.querySelector('#ids').appendChild(node);");
+							wn && wn.evalJS("var result = plus.storage.getItem('result');document.querySelector('#ida').innerText = result;");
 							plus.webview.currentWebview().close();
 						}
 					};

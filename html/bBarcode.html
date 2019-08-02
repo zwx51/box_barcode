@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>扫码</title>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet"/>
+		<style type="text/css">
+		</style>
+		<script type="text/javascript" charset="utf-8">
+
+		
+		</script>
+		<style type="text/css">
+			.mask {
+				height: 100%;
+				width: 100%;
+				position: absolute;
+				top: 0;
+				background: #000000;
+			}
+			
+			body {
+				margin: 0;
+				background: #000000;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mask" id="mask"></div>
+		<script type="text/javascript">
+			var scan;
+			if(window.plus) {
+				plusready();
+			} else {
+				document.addEventListener('plusready', plusready, false);
+			}
+
+			function plusready() {
+				setTimeout(function() {
+					scan = new plus.barcode.Barcode('mask');
+					scan.start();
+					scan.onmarked = function(type, result) {
+						if(result) {
+							alert("扫描到:"+result);
+							scan.close();
+						
+							
+							mui.ajax(
+								"http://134.23.99.89:8081/box_barcode/bBarcode/checkbBarcode",
+								{
+								data:{ 
+									"barcode":"data",
+								}, 
+								async: false,  
+								dataType:'json',//服务器返回json格式数据
+								type:'post',//HTTP请求类型
+								timeout:10000,//超时时间设置为10秒；           
+								success:function(datax){
+									var exist=true;
+									//SUCCESS为已存在该中箱码
+									if(datax.status=="SUCCESS"){
+										exist=true;
+									}
+									//FAIL为不存在该中箱码
+									else if(datax.status=="FAIL"){
+										exist=false;
+									}
+									var title="";
+									if(exist){
+										title="新建中箱码";
+									}else{
+										title="更新中箱码";
+									}
+									var w = plus.webview.create('bBarcodemsg.html', 'bBarcodemsg.html', {
+										'titleNView': {
+											'backgroundColor': '#262930',
+											'titleText': title,
+											'titleColor': '#FFFFFF',
+											autoBackButton: true
+										}
+									}, {
+										barcode_data: result,
+										barcode_exist: exist
+										
+									});
+									w.show('pop-in', '300ms');
+								},
+								error:function(xhr,type,errorThrown){
+									console.log(type);
+								}
+							});
+
+						}
+					};
+				}, 200);
+
+				//处理返回事件
+				plus.key.addEventListener('backbutton', function() {
+					plus.webview.currentWebview().close();
+				})
+			}
+		</script>
+	</body>
+
+</html>
