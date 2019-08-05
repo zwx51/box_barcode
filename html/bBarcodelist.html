@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>扫码</title>
+		<script src="../js/mui.min.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet"/>
+		<style type="text/css">
+		</style>
+		<script type="text/javascript" charset="utf-8">
+
+		</script>
+	</head>
+
+	<body>
+		<div>
+		
+			<ul class="mui-table-view">
+
+				<li class="mui-table-view-cell">
+					<label>中箱码: </label><label id="data">ss</label>
+				</li>
+				<li class="mui-table-view-cell">
+					<span style="width: 20%;">
+					<label>容量:</label>
+					</span>
+					<span style="width: 60%;">
+					<input style="width: 60%;border-style:none;" type="text"  >
+					</span>
+					<span style="width: 20%;">
+					<button type="button" class="mui-btn mui-btn-primary" >修改容量</button>
+					</span>
+				</li>
+			</ul>
+			<br />
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					列表
+					（
+					<label id = "l">12</label>
+					/
+					<label id = "len">20</label>
+					）
+					<button type="button" class="mui-btn mui-btn-green" >添加</button>
+				</li>
+			</ul>
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell">
+					<label>54545454 </label>
+					<button type="button" class="mui-btn mui-btn-red" >删除</button>
+				</li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+			var exist=false;
+			if(window.plus) {
+				plusready();
+			} else {
+				document.addEventListener('plusready', plusready, false);
+			}
+			function plusready() {
+				var w = plus.webview.currentWebview();
+				var data = w.barcode_data;
+				exist = w.barcode_exist;
+				if(false){		//不符合中箱码格式
+					alert("不符合中箱码格式");
+					plus.webview.getWebviewById('carcode1').close();
+					plus.webview.currentWebview().close();
+				}
+				
+				document.querySelector('#data').innerText = data;
+				
+				//如果该中箱码不存在则新建
+				if(!exist){					
+					mui.ajax('',{
+						data:{
+							"barcode":data
+						},
+						dataType:'json',	//服务器返回json格式数据
+						type:'post',		//HTTP请求类型
+						timeout:10000,		//超时时间设置为10秒；
+						success:function(data){
+							
+						},
+						error:function(xhr,type,errorThrown){
+							
+						}
+					});
+				}
+				
+				//获取容量
+				mui.ajax('',{
+					data:{
+						"barcode":data
+					},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(data){
+						
+					},
+					error:function(xhr,type,errorThrown){
+						
+					}
+				});
+				
+				
+				
+				//处理返回事件
+				plus.key.addEventListener('backbutton',function(){
+					plus.webview.getWebviewById('carcode1').close();
+					plus.webview.currentWebview().close();
+				})
+				
+			}
+			
+			function getbBarcodelist(){
+				mui.ajax('',{
+					data:{
+						
+					},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(data){
+						
+					},
+					error:function(xhr,type,errorThrown){
+						
+					}
+				});
+			}
+			
+		</script>
+	</body>
+
+</html>

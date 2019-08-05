@@ -53,12 +53,12 @@
 								"http://134.23.99.89:8081/box_barcode/bBarcode/checkbBarcode",
 								{
 								data:{ 
-									"barcode":"data",
+									"barcode":result,
 								}, 
 								async: false,  
 								dataType:'json',//服务器返回json格式数据
 								type:'post',//HTTP请求类型
-								timeout:10000,//超时时间设置为10秒；           
+								timeout:8000,//超时时间设置为10秒；           
 								success:function(datax){
 									var exist=true;
 									//SUCCESS为已存在该中箱码
@@ -75,7 +75,7 @@
 									}else{
 										title="更新中箱码";
 									}
-									var w = plus.webview.create('bBarcodemsg.html', 'bBarcodemsg.html', {
+									var w = plus.webview.create('bBarcodelist.html', 'bBarcodelist.html', {
 										'titleNView': {
 											'backgroundColor': '#262930',
 											'titleText': title,
@@ -85,15 +85,15 @@
 									}, {
 										barcode_data: result,
 										barcode_exist: exist
-										
 									});
 									w.show('pop-in', '300ms');
 								},
 								error:function(xhr,type,errorThrown){
+									alert("无法连接到服务器");
+									plus.webview.currentWebview().close();
 									console.log(type);
 								}
-							});
-
+							}); 
 						}
 					};
 				}, 200);
