@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title></title>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/ip.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet" />
+		<script type="text/javascript" charset="utf-8">
+			mui.init();
+		</script>
+		<style type="text/css">
+			p {
+				margin: 10px 0 0 0;
+			}
+		</style>
+	</head>
+	<body>
+<!-- 		<header class="mui-bar mui-bar-nav">
+			<h1 class="mui-title"></h1>
+		</header> -->
+		<div class="mui-content">
+			<p>操作员：<span id="username"></span> 员工号：<span id="unumber"></span></p>
+
+			<ul class="mui-table-view">
+				<li class="mui-table-view-cell"><button id="a" class="mui-btn-blue" style="width: 100%;">扫描中箱码</button></li>
+				<li class="mui-table-view-cell"><button id="b" class="mui-btn-blue" style="width: 100%;">扫描栈板码</button></li>
+			</ul>
+		</div>
+
+		<script type="text/javascript">
+			document.querySelector('#a').addEventListener('click', function() {
+				var w = plus.webview.create('_www/html/bBarcode.html', 'carcode1', {
+					'titleNView': {
+						'backgroundColor': '#262930',
+						'titleText': '扫描中箱码',
+						'titleColor': '#FFFFFF',
+						autoBackButton: true
+					}
+				});
+				plus.webview.show(w, 'slide-in-right', '300ms');
+			}, false);
+			if (window.plus) {
+				plusready();
+			} else {
+				document.addEventListener('plusready', plusready, false);
+			}
+
+			function plusready() {
+				mui.ajax(ip+'/box_barcode/getuserinfo', {
+					dataType: 'json', //服务器返回json格式数据
+					type: 'post', //HTTP请求类型
+					timeout: 10000, //超时时间设置为10秒；
+					success: function(data) {
+						document.querySelector('#username').innerHTML=data.uname;
+						document.querySelector('#unumber').innerHTML=data.unumber;
+					},
+					error: function(xhr, type, errorThrown) {
+						alert(type);
+					}
+				});
+			}
+		</script>
+	</body>
+</html>

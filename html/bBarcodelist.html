@@ -6,7 +6,9 @@
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<title>扫码</title>
 		<script src="../js/mui.min.js"></script>
+		<script src="../js/ip.js"></script>
 		<link href="../css/mui.min.css" rel="stylesheet"/>
+		<link href="../css/main.css" rel="stylesheet"/>
 		<style type="text/css">
 		</style>
 		<script type="text/javascript" charset="utf-8">
@@ -20,17 +22,18 @@
 			<ul class="mui-table-view">
 
 				<li class="mui-table-view-cell">
-					<label>中箱码: </label><label id="data">ss</label>
+					<label>中箱码: </label>
+					<input id="data" class="mui-input-clear" style="margin-bottom:0px" type="text" value="" readonly="readonly" >
 				</li>
 				<li class="mui-table-view-cell">
 					<span style="width: 20%;">
 					<label>容量:</label>
 					</span>
 					<span style="width: 60%;">
-					<input style="width: 60%;border-style:none;" type="text"  >
+					<input id = "leninput" style="width: 60%;border-style:none;margin-bottom:0px" type="number"  >
 					</span>
 					<span style="width: 20%;">
-					<button type="button" class="mui-btn mui-btn-primary" >修改容量</button>
+					<button type="button" class="mui-btn mui-btn-primary" onclick="changlen();">修改容量</button>
 					</span>
 				</li>
 			</ul>
@@ -39,18 +42,15 @@
 				<li class="mui-table-view-cell">
 					列表
 					（
-					<label id = "l">12</label>
+					<label id = "use"></label>
 					/
-					<label id = "len">20</label>
+					<label id = "len"></label>
 					）
-					<button type="button" class="mui-btn mui-btn-green" >添加</button>
+					<button id="addsn" type="button" class="mui-btn mui-btn-green" >添加</button>
 				</li>
 			</ul>
-			<ul class="mui-table-view">
-				<li class="mui-table-view-cell">
-					<label>54545454 </label>
-					<button type="button" class="mui-btn mui-btn-red" >删除</button>
-				</li>
+			<ul class="mui-table-view" id="snlist">
+
 			</ul>
 		</div>
 		<script type="text/javascript">
@@ -64,75 +64,172 @@
 				var w = plus.webview.currentWebview();
 				var data = w.barcode_data;
 				exist = w.barcode_exist;
-				if(false){		//不符合中箱码格式
-					alert("不符合中箱码格式");
-					plus.webview.getWebviewById('carcode1').close();
-					plus.webview.currentWebview().close();
-				}
-				
-				document.querySelector('#data').innerText = data;
+				document.querySelector('#data').value = data;
 				
 				//如果该中箱码不存在则新建
 				if(!exist){					
-					mui.ajax('',{
+					mui.ajax(
+						ip+'/box_barcode/bBarcode/addbBarcode',{
 						data:{
 							"barcode":data
 						},
 						dataType:'json',	//服务器返回json格式数据
+						async:false,
 						type:'post',		//HTTP请求类型
 						timeout:10000,		//超时时间设置为10秒；
 						success:function(data){
-							
+							if(data.status=="FAIL"){
+								alert("新建中箱码失败");
+								plus.webview.getWebviewById('carcode1').close();
+								plus.webview.currentWebview().close();
+							}
 						},
 						error:function(xhr,type,errorThrown){
-							
+							alert("网络异常");
+							plus.webview.currentWebview().close();
 						}
 					});
 				}
-				
-				//获取容量
-				mui.ajax('',{
-					data:{
-						"barcode":data
-					},
-					dataType:'json',//服务器返回json格式数据
-					type:'post',//HTTP请求类型
-					timeout:10000,//超时时间设置为10秒；
-					success:function(data){
-						
-					},
-					error:function(xhr,type,errorThrown){
-						
-					}
-				});
+				getbBarcodelist(data);
+
 				
 				
 				
 				//处理返回事件
 				plus.key.addEventListener('backbutton',function(){
-					plus.webview.getWebviewById('carcode1').close();
-					plus.webview.currentWebview().close();
+						plus.webview.currentWebview().close();
 				})
 				
 			}
 			
-			function getbBarcodelist(){
-				mui.ajax('',{
+			//获取列表方法
+			function getbBarcodelist(data){
+				//获取容量
+				mui.ajax(
+					ip+'/box_barcode/bBarcode/getbBarcodelen',
+					{
 					data:{
-						
+						"barcode":data
 					},
+					async:false,
 					dataType:'json',//服务器返回json格式数据
 					type:'post',//HTTP请求类型
 					timeout:10000,//超时时间设置为10秒；
 					success:function(data){
-						
+						document.querySelector('#len').innerHTML = data;
+						document.querySelector('#leninput').value = data;
 					},
 					error:function(xhr,type,errorThrown){
-						
+						alert("网络异常");
+						plus.webview.currentWebview().close();
+					}
+				});
+				
+				//获取列表
+				mui.ajax(
+					ip+'/box_barcode/bBarcode/getbBarcodesnlist',
+					{
+					data:{
+						"barcode":data
+					},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					async:false,
+					timeout:10000,//超时时间设置为10秒；
+					success:function(data){
+						document.querySelector("#use").innerHTML = data.length;
+						text = "";
+						for(var i=0;i<data.length;i++){
+							text += "<li class=\"mui-table-view-cell\"><label>";
+							text += data[i].sncode;
+							text += "</label>";
+							text += "<span class=\"listbottongroup\">";
+							text += "<button type=\"button\" class=\"mui-btn mui-btn-red\" >QC</button>";
+							text += "<button type=\"button\" class=\"mui-btn mui-btn-red\" onclick=\"moveout('";
+							text += data[i].sncode;
+							text += "')\">移出</button></span></li>"
+						}
+						document.querySelector("#snlist").innerHTML = text;
+					},
+					error:function(xhr,type,errorThrown){
+						alert("网络异常");
+						plus.webview.currentWebview().close();
 					}
 				});
 			}
 			
+			//改变容量方法
+			function changlen(){ 
+				var lenvar = document.querySelector("#leninput").value;
+				var bbarcodevar = document.querySelector("#data").value;
+				mui.ajax(
+					ip+'/box_barcode/bBarcode/changlen',
+					{
+					data:{
+						"len":lenvar,
+						"barcode":bbarcodevar
+					},
+					dataType:'json',//服务器返回json格式数据
+					async:false,
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(data){
+						if(data.status=="SUCCESS"){
+							mui.toast('修改成功')
+						}else{
+							alert(data.msg);
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						alert("网络异常");
+						plus.webview.currentWebview().close();
+					}
+				});
+				 getbBarcodelist(bbarcodevar);
+				}
+				
+				
+			//将SN移出中箱码
+			function moveout(snbarcode){ 
+				var bbarcodevar = document.querySelector("#data").value;
+				mui.ajax(
+					ip+'/box_barcode/bBarcode/moveoutsnBarcode',
+					{
+					data:{
+						"snbarcode":snbarcode
+					},
+					dataType:'json',//服务器返回json格式数据
+					async:false,
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					success:function(data){
+						if(data.result===true){
+							mui.toast('删除成功')
+						}else{
+							alert(data.msg);
+						}
+					},
+					error:function(xhr,type,errorThrown){
+						alert("网络异常");
+					}
+				});
+				 getbBarcodelist(bbarcodevar);
+				}
+			
+			//设置添加按钮方法
+			document.querySelector('#addsn').addEventListener('click',function(){
+				var w = plus.webview.create('_www/html/snBarcode.html', 'addsn', {
+					'titleNView': {
+						'backgroundColor': '#262930',
+						'titleText': '扫描SN码',
+						'titleColor': '#FFFFFF',
+						autoBackButton: true
+					}
+				}, {
+					bbarcode: document.querySelector('#data').value
+				});
+				plus.webview.show(w, 'slide-in-right', '300ms');
+			},false);
 		</script>
 	</body>
 

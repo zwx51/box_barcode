@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>扫码</title>
+		<script src="../js/mui.min.js"></script>
+		<script src="../js/ip.js"></script>
+		<link href="../css/mui.min.css" rel="stylesheet"/>
+		<style type="text/css">
+			.mask {
+				height: 100%;
+				width: 100%;
+				position: absolute;
+				top: 0;
+				background: #000000;
+			}
+			
+			body {
+				margin: 0;
+				background: #000000;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mask" id="mask"></div>
+		<script type="text/javascript">
+			var scan;
+			if(window.plus) {
+				plusready();
+			} else {
+				document.addEventListener('plusready', plusready, false);
+			}
+
+			function plusready() {
+				setTimeout(function() {
+					var w = plus.webview.currentWebview();
+					var bbarcode = w.bbarcode;
+					scan = new plus.barcode.Barcode('mask',[plus.barcode.CODE128]);
+					scan.start();
+					scan.onmarked = function(type, result) {
+						if(result) {
+							alert(result);
+							scan.close();
+							
+							//新建sn码
+							mui.ajax(
+								ip+'/box_barcode/bBarcode/addsnBarcode',
+								{
+								data:{
+									"snbarcode":result,
+									"bbarcode":bbarcode
+								},
+								dataType:'json',//服务器返回json格式数据
+								async:false,
+								type:'post',//HTTP请求类型
+								timeout:10000,//超时时间设置为10秒；
+								success:function(data){ 
+									if(data.result===true){
+										alert("添加成功");
+
+									}else{
+										alert(data.msg);
+									}
+
+								},
+								error:function(xhr,type,errorThrown){
+									alert("网络异常");
+									plus.webview.currentWebview().close();
+								}
+							});
+							var wn = plus.webview.getWebviewById('bBarcodelist.html'); //传递消息返回的webview
+							wn && wn.evalJS("getbBarcodelist('"+bbarcode+"');");
+							plus.webview.currentWebview().close();
+						}
+					};
+				}, 200)
+
+				//处理返回事件
+				plus.key.addEventListener('backbutton', function() {
+					plus.webview.currentWebview().close();
+				})
+			}
+		</script>
+	</body>
+
+</html>
